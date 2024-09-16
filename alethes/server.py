@@ -3,8 +3,26 @@ import time
 from typing import List, Dict, Any
 from fastapi import FastAPI, HTTPException
 from fastapi.routing import APIRoute
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization
+import base64
+
 
 app = FastAPI()
+
+# Generate a key pair for the server (in a real-world scenario, you'd store these securely)
+private_key = rsa.generate_private_key(
+    public_exponent=65537,
+    key_size=2048
+)
+public_key = private_key.public_key()
+
+# Serialize the public key to PEM format
+pem_public_key = public_key.public_bytes(
+    encoding=serialization.Encoding.PEM,
+    format=serialization.PublicFormat.SubjectPublicKeyInfo
+)
 
 # In-memory database to store hashes (in a real implementation, use a proper database)
 db: Dict[str, Dict[str, Any]] = {}
@@ -59,14 +77,23 @@ async def submit_hash(x: str, m: str, store=True, attest=True):
         return 'Received'
 
     if attest:
-        # Generate attestation
-        k = "server_private_key"  # In a real implementation, use a secure private key
-        attestation = hash_data(f"{x_prime}|{k}|{t_received}")
+        # Sign the data
+        signature = private_key.sign(
+            x_prime.encode(),
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+        )
+
+        # Encode the signature as base64 for easy transmission
+        signature_b64 = base64.b64encode(signature).decode()
 
         return {
             "x_prime": x_prime,
             "t_received": t_received,
-            "attestation": attestation
+            "signature": signature_b64
         }
 
 
@@ -99,6 +126,17 @@ async def verify_hash(x_prime: str):
         "m": record["m"],
         "t_received": record["t_received"],
     }
+
+
+@app.get("/public_key")
+async def get_public_key():
+    """
+    Retrieve the server's public key.
+
+    This endpoint allows clients to fetch the server's public key,
+    which can be used to verify signatures.
+    """
+    return {"public_key": pem_public_key.decode()}
 
 
 @app.get("/hashes")
