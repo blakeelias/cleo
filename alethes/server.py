@@ -50,6 +50,8 @@ async def submit_hash(x: str, m: str, store=True, attest=True):
     t_received = int(time.time())
     x_prime = hash_data(f"{x}|{m}")
 
+    result = {}
+
     if store:
         # Store the hash
         db[x_prime] = {
@@ -59,7 +61,7 @@ async def submit_hash(x: str, m: str, store=True, attest=True):
             "x_prime": x_prime
         }
 
-        return 'Received'
+        result["t_received"] = t_received
 
     if attest:
         # Sign the data
@@ -71,12 +73,10 @@ async def submit_hash(x: str, m: str, store=True, attest=True):
         # Encode the signature as base64 for easy transmission
         signature_b64 = base64.b64encode(signature).decode()
 
-        return {
-            "x_prime": x_prime,
-            "t_received": t_received,
-            "signature": signature_b64
-        }
+        result["x_prime"] = x_prime
+        result["signature"] = signature_b64
 
+    return result
 
 @app.get("/verify/{x_prime}")
 async def verify_hash(x_prime: str):

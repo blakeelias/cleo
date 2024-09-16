@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives import serialization
 from alethes.common import hash_data
 
 # Assuming the server is running on localhost:8000
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://90b61106-9a4b-40c4-8687-072ef2f03ed4-00-rc68466xvlwx.picard.replit.dev:3000"
 
 
 def get_server_public_key():
@@ -77,18 +77,21 @@ if __name__ == "__main__":
     verified_data = verify_hash(x_prime)
     if verified_data:
         print("Hash verification successful. Retrieved data:")
+        print(verified_data)
         print(f"Original hash (x): {verified_data['x']}")
         print(f"Metadata (m): {verified_data['m']}")
-        print(f"Timestamp (t): {verified_data['t']}")
+        print(f"Timestamp (t): {verified_data['t_received']}")
 
         # Additional verification
-        reconstructed_x_prime = hash(
+        reconstructed_x_prime = hash_data(
             f"{verified_data['x']}|{verified_data['m']}")
         if reconstructed_x_prime == x_prime:
             print("Reconstructed x_prime matches the original.")
         else:
             print(
                 "Warning: Reconstructed x_prime does not match the original.")
+            print(f"Reconstructed x_prime: {reconstructed_x_prime}")
+            print(f"Original x_prime: {x_prime}")
     else:
         print("Hash verification failed or data not found.")
 
