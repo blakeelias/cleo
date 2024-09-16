@@ -18,14 +18,15 @@ public_key = private_key.public_key()
 # Serialize the public key to PEM format
 pem_public_key = public_key.public_bytes(
     encoding=serialization.Encoding.PEM,
-    format=serialization.PublicFormat.SubjectPublicKeyInfo)
+    format=serialization.PublicFormat.SubjectPublicKeyInfo
+)
 
 # In-memory database to store hashes (in a real implementation, use a proper database)
 db: Dict[str, Dict[str, Any]] = {}
 
 
 @app.post("/submit")
-async def submit_hash(x: str, m: str, store=True, attest=True):
+async def submit_hash(x: str, m: str, store: bool = True, attest: bool = True) -> dict:
     """
     Submit a content hash and metadata to the server for timestamping and attestation.
 
@@ -50,7 +51,7 @@ async def submit_hash(x: str, m: str, store=True, attest=True):
     t_received = int(time.time())
     x_prime = hash_data(f"{x}|{m}")
 
-    result = {}
+    result: Dict[str, Any] = {}
 
     if store:
         # Store the hash
@@ -79,7 +80,7 @@ async def submit_hash(x: str, m: str, store=True, attest=True):
     return result
 
 @app.get("/verify/{x_prime}")
-async def verify_hash(x_prime: str):
+async def verify_hash(x_prime: str) -> dict:
     """
     Verify a previously submitted hash and retrieve its associated data.
 
@@ -103,6 +104,7 @@ async def verify_hash(x_prime: str):
         raise HTTPException(status_code=404, detail="Hash not found")
 
     record = db[x_prime]
+    # Return data associated with the hash
     return {
         "x": record["x"],
         "m": record["m"],
@@ -112,18 +114,20 @@ async def verify_hash(x_prime: str):
 
 
 @app.get("/public_key")
-async def get_public_key():
+async def get_public_key() -> dict:
     """
     Retrieve the server's public key.
 
     This endpoint allows clients to fetch the server's public key,
     which can be used to verify signatures.
+
+    Returns:
+        dict: A dictionary containing the server's public key.
     """
     return {"public_key": pem_public_key.decode()}
 
-
 @app.get("/hashes")
-async def get_hashes():
+async def get_hashes() -> dict:
     """
     Retrieve a list of all stored hashes.
     
@@ -138,7 +142,7 @@ async def get_hashes():
 
 
 @app.get("/")
-async def root():
+async def root() -> dict:
     """
     List all available routes in the application.
 
@@ -158,8 +162,7 @@ async def root():
                 "path": route.path,
                 "methods": list(route.methods),
                 "name": route.name,
-                "summary": route.summary or route.description.split('\n')[0]
-                or "No summary provided"
+                "summary": route.summary or route.description.split('\n')[0] or "No summary provided"
             })
 
     return {"routes": routes}
