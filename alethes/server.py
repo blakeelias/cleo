@@ -1,7 +1,8 @@
 import hashlib
 import time
-from typing import Dict, Any
+from typing import List, Dict, Any
 from fastapi import FastAPI, HTTPException
+from fastapi.routing import APIRoute
 
 app = FastAPI()
 
@@ -111,3 +112,31 @@ async def get_hashes():
             - hashes (list): A list of all server-generated hashes (x_prime) stored in the database.
     """
     return {"hashes": list(db.keys())}
+
+
+@app.get("/")
+async def root():
+    """
+    List all available routes in the application.
+
+    Returns:
+        dict: A dictionary containing:
+            - routes (List[dict]): A list of dictionaries, each containing:
+                - path (str): The path of the route.
+                - methods (List[str]): HTTP methods supported by the route.
+                - name (str): The name of the route (if any).
+                - summary (str): A brief summary of the route (if provided in docstring).
+    """
+    routes: List[dict] = []
+
+    for route in app.routes:
+        if isinstance(route, APIRoute):
+            routes.append({
+                "path": route.path,
+                "methods": list(route.methods),
+                "name": route.name,
+                "summary": route.summary or route.description.split('\n')[0]
+                or "No summary provided"
+            })
+
+    return {"routes": routes}
