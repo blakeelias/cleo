@@ -1,4 +1,3 @@
-import hashlib
 import time
 from typing import List, Dict, Any
 from fastapi import FastAPI, HTTPException
@@ -8,37 +7,21 @@ from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization
 import base64
 
+from alethes.common import hash_data
 
 app = FastAPI()
 
 # Generate a key pair for the server (in a real-world scenario, you'd store these securely)
-private_key = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=2048
-)
+private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 public_key = private_key.public_key()
 
 # Serialize the public key to PEM format
 pem_public_key = public_key.public_bytes(
     encoding=serialization.Encoding.PEM,
-    format=serialization.PublicFormat.SubjectPublicKeyInfo
-)
+    format=serialization.PublicFormat.SubjectPublicKeyInfo)
 
 # In-memory database to store hashes (in a real implementation, use a proper database)
 db: Dict[str, Dict[str, Any]] = {}
-
-
-def hash_data(data: str) -> str:
-    """
-    Generate a SHA-256 hash of the input data.
-
-    Args:
-        data (str): The input string to be hashed.
-
-    Returns:
-        str: The hexadecimal representation of the SHA-256 hash.
-    """
-    return hashlib.sha256(data.encode()).hexdigest()
 
 
 @app.post("/submit")
@@ -82,12 +65,8 @@ async def submit_hash(x: str, m: str, store=True, attest=True):
         # Sign the data
         signature = private_key.sign(
             x_prime.encode(),
-            padding.PSS(
-                mgf=padding.MGF1(hashes.SHA256()),
-                salt_length=padding.PSS.MAX_LENGTH
-            ),
-            hashes.SHA256()
-        )
+            padding.PSS(mgf=padding.MGF1(hashes.SHA256()),
+                        salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
 
         # Encode the signature as base64 for easy transmission
         signature_b64 = base64.b64encode(signature).decode()
