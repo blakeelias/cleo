@@ -64,14 +64,13 @@ def submit_hash(content_hash: str, metadata: str) -> dict:
     response = requests.post(f"{BASE_URL}/submit", params={"x": content_hash, "m": metadata})
     return response.json()
 
-def verify_signature(signature_b64: str, public_key: RSAPublicKey, x_prime: str) -> bool:
+def verify_signature(signature_b64: str, public_key: RSAPublicKey) -> bool:
     """
     Verify the server's signature locally.
 
     Args:
         signature_b64 (str): The base64-encoded signature from the server.
         public_key (RSAPublicKey): The server's public key.
-        x_prime (str): The content whose signature is to be verified.
 
     Returns:
         bool: True if the signature is valid, False otherwise.
