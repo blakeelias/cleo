@@ -132,11 +132,13 @@ if __name__ == "__main__":
             print("Reconstructed x_prime matches the original.")
         else:
             print(
-                "Warning: Reconstructed x_prime does not match the original.")
+                "ERROR: Reconstructed x_prime does not match the original.")
             print(f"Reconstructed x_prime: {reconstructed_x_prime}")
             print(f"Original x_prime: {x_prime}")
+            exit()
     else:
-        print("Hash verification failed or data not found.")
+        print("ERROR: Hash verification failed or data not found.")
+        exit()
 
     # Try to verify a non-existent hash
     non_existent_x_prime = "This_hash_does_not_exist"
@@ -147,8 +149,9 @@ if __name__ == "__main__":
         )
     else:
         print(
-            f"Unexpected: Data found for supposedly non-existent hash: {non_existent_x_prime}"
+            f"ERROR: Data found for supposedly non-existent hash: {non_existent_x_prime}"
         )
+        exit()
 
     # Fetch all stored hashes
     # For debugging / demonstration purposes only
