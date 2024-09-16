@@ -70,8 +70,10 @@ async def submit_hash(x: str, m: str, store=True, attest=True):
     if store:
         # Store the hash
         db[x_prime] = {
+            "x": x,
             "m": m,
             "t_received": t_received,
+            "x_prime": x_prime
         }
 
         return 'Received'
@@ -123,8 +125,10 @@ async def verify_hash(x_prime: str):
 
     record = db[x_prime]
     return {
+        "x": record["x"],
         "m": record["m"],
         "t_received": record["t_received"],
+        "x_prime": record["x_prime"]
     }
 
 
