@@ -1,5 +1,7 @@
 import requests
 import base64
+import json
+import time
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
@@ -9,6 +11,32 @@ from alethes.common import hash_data
 # Assuming the server is running on localhost:8000
 BASE_URL = "https://90b61106-9a4b-40c4-8687-072ef2f03ed4-00-rc68466xvlwx.picard.replit.dev:3000"
 
+
+def generate_content_hash(data, metadata, timestamp):
+    """
+    Generate a content hash from data, metadata, and timestamp.
+
+    Args:
+        data (dict or str): The image data or other content to be hashed.
+        metadata (dict or str): Additional information about the content.
+        timestamp (int): Unix timestamp representing when the hash was generated.
+
+    Returns:
+        str: A hexadecimal string representation of the SHA-256 hash.
+    """
+    # Convert data to string if it's not already
+    if not isinstance(data, str):
+        data = json.dumps(data)
+
+    # Convert metadata to string if it's not already
+    if not isinstance(metadata, str):
+        metadata = json.dumps(metadata)
+
+    # Concatenate all components
+    content = f"{data}|{metadata}|{timestamp}"
+
+    # Generate SHA-256 hash
+    return hash_data(content)
 
 def get_server_public_key():
     """Fetch the server's public key."""
@@ -61,9 +89,24 @@ if __name__ == "__main__":
     server_public_key = get_server_public_key()
     print("Server's public key retrieved.")
 
-    # Submit a hash
-    content_hash = "1234567890abcdef"
-    metadata = "Example metadata"
+    # Hard-coded data and metadata
+    data = {
+        "image": "base64_encoded_image_data_here",
+        "format": "jpeg"
+    }
+    metadata = {
+        "user_id": "12345",
+        "device": "iPhone 12",
+        "location": "New York"
+    }
+
+    # Generate current timestamp
+    timestamp = int(time.time())  # Unix timestamp (seconds since epoch)
+
+    # Generate content hash
+    content_hash = generate_content_hash(data, metadata, timestamp)
+
+    # Submit the hash and metadata
     result = submit_hash(content_hash, metadata)
     print(f"Submitted hash. Result: {result}")
 
