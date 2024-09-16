@@ -1,3 +1,9 @@
+"""
+A poor-person's Time-Stamp Protocol (https://en.wikipedia.org/wiki/Time_stamp_protocol).
+
+Usage: See calls from `client.py`.
+"""
+
 import time
 from typing import List, Dict, Any
 from fastapi import FastAPI, HTTPException
