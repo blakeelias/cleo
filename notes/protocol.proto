@@ -1,0 +1,44 @@
+
+message Ledger {
+  option NodeId source;
+  option SessionID session;
+  option PublicKey pub_key;
+  repeated Blocks blocks
+}
+
+
+
+message Block {
+  repeated Records records;
+  option Sha3 hash;
+  // tai offset in ns of last observation in local ntp time
+  // probably shouldn't be included in hash
+  option i64 time;
+}
+
+message Record {
+  optional Enum {
+    UNKNOWN,
+    BASIC,
+    CERT,
+    FILE,
+  } type;
+  option String name; // Filename
+  option Sha3 hash; //
+  option Certificate cert;
+}
+
+message BasicRecord {
+  NodeId source;
+  SessionID session;
+  uint64 block_no;
+  Hash hash;
+}
+
+
+message Config {
+
+}
+
+
+
