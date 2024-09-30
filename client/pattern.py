@@ -7,10 +7,14 @@ import hashlib
 import sys
 
 
-# width, height = 1920, 1080
-width, height = 256, 144
+width, height = 1920//2, 1080//2
+scale = 2
+# width, height = 256, 144
 color_depth = 6
 
+# fullscreen doesn't work on macos
+cv.namedWindow("pattern", cv.WINDOW_NORMAL)
+# cv.setWindowProperty("pattern", cv.WND_PROP_FULLSCREEN, cv.WINDOW_FULLSCREEN)
 
 i = 0
 while True:
@@ -44,7 +48,7 @@ while True:
     # pattern[:,0:width//2] = (255,0,0)
     # pattern[:,width//2:width] = (0,255,0)
 
-    pattern = cv.resize(pattern, (0, 0), fx=8, fy=8,
+    pattern = cv.resize(pattern, (0, 0), fx=scale, fy=scale,
                         interpolation=cv.INTER_NEAREST)
     pattern = cv.cvtColor(pattern, cv.COLOR_RGB2BGR)
     cv.imshow("pattern", pattern)

@@ -9,8 +9,10 @@ import sys
 
 # imgL = cv.imread('Photos-001/IMG_1005.jpeg', cv.IMREAD_GRAYSCALE);
 # imgR = cv.imread('Photos-001/IMG_1006.jpeg', cv.IMREAD_GRAYSCALE);
-imgL = cv.imread('Photos-001/IMG_1007.jpg', cv.IMREAD_GRAYSCALE)
-imgR = cv.imread('Photos-001/IMG_1008.jpg', cv.IMREAD_GRAYSCALE)
+# imgL = cv.imread('../Photos-001/IMG_1007.jpg', cv.IMREAD_GRAYSCALE)
+# imgR = cv.imread('../Photos-001/IMG_1008.jpg', cv.IMREAD_GRAYSCALE)
+imgL = cv.imread('../Photos-001/IMG_1007.jpg')
+imgR = cv.imread('../Photos-001/IMG_1008.jpg')
 
 
 # stereo = cv.StereoBM.create(numDisparities=0, blockSize=9)
